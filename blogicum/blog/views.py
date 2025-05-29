@@ -49,7 +49,7 @@ class AuthorCheckCommentMixin(BaseCommentMixin):
     def get_object(self, queryset=None):
         comment = get_object_or_404(Comment, pk=self.kwargs['comment'])
         if comment.author != self.request.user:
-            raise Http404("Доступ запрещён")
+            raise Http404("Запрещено")
         return comment
 
 
@@ -269,3 +269,4 @@ class CategoryListView(PostQuerySetMixin, ListView):
             is_published=True,
         )
         return context
+

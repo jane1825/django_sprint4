@@ -45,6 +45,9 @@ def server_error(request, *args, **argv):
 
 def csrf_failure(request, reason=''):
     return render(request, 'pages/403csrf.html', status=403)
+
+
 # Псевдонимы для совместимости
 AboutPage = StaticAboutView
 RulesPage = StaticRulesView
+

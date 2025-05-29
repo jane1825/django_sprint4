@@ -58,9 +58,7 @@ class PostQuerySetMixin:
             is_published=True,
             category__is_published=True
         )
-        return get_queryset_with_comment_counts(
-            posts
-        ).order_by('-pub_date')
+        return get_queryset_with_comment_counts(posts).order_by('-pub_date')
 
 
 class CommentCreateView(LoginRequiredMixin, BaseCommentMixin, CreateView):
@@ -116,12 +114,9 @@ class UserProfileView(DetailView):
                 pub_date__lte=now,
                 category__is_published=True
             )
-        posts = get_queryset_with_comment_counts(
-            posts
-        ).order_by('-pub_date')
+        posts = get_queryset_with_comment_counts(posts).order_by('-pub_date')
         context['page_obj'] = paginate_items(posts, self.request)
         return context
-
 
 
 class UserEditView(LoginRequiredMixin, UpdateView):

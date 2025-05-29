@@ -47,9 +47,10 @@ class BaseCommentMixin:
 
 class AuthorCheckCommentMixin(BaseCommentMixin):
     def get_object(self, queryset=None):
-        comment = get_object_or_404(Comment, pk=self.kwargs["comment"])
-        if comment.author != self.request.user:
-            raise Http404("Запрещено")
+        comment = get_object_or_404(Comment, pk=self.kwargs['comment'])
+        post = get_object_or_404(Post, pk=self.kwargs['post'])
+        if comment.author != self.request.user or comment.post != post:
+            raise Http404("Действие запрещено")
         return comment
 
 
@@ -79,6 +80,14 @@ class CommentEditView(LoginRequiredMixin, AuthorCheckCommentMixin, UpdateView):
     form_class = CommentCreateForm
     template_name = "blog/comment_edit.html"
 
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['comment'] = self.get_object()
+        return context
+
     def get_success_url(self):
         return reverse_lazy(
             "blog:post_detail",
@@ -90,15 +99,18 @@ class CommentEditView(LoginRequiredMixin, AuthorCheckCommentMixin, UpdateView):
 
 class CommentRemoveView(LoginRequiredMixin, AuthorCheckCommentMixin, DeleteView):
     model = Comment
-    template_name = "blog/comment_confirm_delete.html"
+    template_name = 'blog/comment_edit.html'
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['comment'] = self.get_object()
+        return context
 
     def get_success_url(self):
-        return reverse_lazy(
-            "blog:post_detail",
-            kwargs={
-                "post": self.object.post.id,
-            },
-        )
+        return reverse_lazy('blog:post_detail', kwargs={'post': self.object.post.id})
 
 
 class UserProfileView(DetailView):
@@ -237,7 +249,7 @@ class PostDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["comments"] = self.object.comment_set.all()
+        context["comments"] = self.object.comment_set.all().order_by("created_at")
         if self.request.user.is_authenticated:
             context["form"] = CommentCreateForm()
         return context

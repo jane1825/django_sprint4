@@ -123,6 +123,7 @@ class UserProfileView(DetailView):
         return context
 
 
+
 class UserEditView(LoginRequiredMixin, UpdateView):
     model = get_user_model()
     template_name = 'blog/user.html'

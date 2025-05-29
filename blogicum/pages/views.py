@@ -25,4 +25,3 @@ def csrf_failure(request, reason=''):
 # Псевдонимы для совместимости
 AboutPage = StaticAboutView
 RulesPage = StaticRulesView
-

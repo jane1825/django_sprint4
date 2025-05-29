@@ -255,5 +255,3 @@ class CategoryListView(PostQuerySetMixin, ListView):
             is_published=True
         )
         return context
-
-

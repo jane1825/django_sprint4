@@ -122,9 +122,11 @@ class UserProfileView(DetailView):
                 author=self.object,
                 is_published=True,
                 pub_date__lte=now,
-                category__is_published=True,
+                category__is_published=True
             )
-        posts = get_queryset_with_comment_counts(posts).order_by('-pub_date')
+        posts = get_queryset_with_comment_counts(posts).order_by(
+            '-pub_date'
+        )
         context['page_obj'] = paginate_items(posts, self.request)
         return context
 

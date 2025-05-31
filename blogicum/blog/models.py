@@ -132,6 +132,9 @@ class Comment(models.Model):
         blank=False,
         verbose_name='Добавлено',
         auto_now_add=True)
+    @property
+    def post_id(self):
+        return self.post.id
 
     class Meta:
         verbose_name = 'комментарий'

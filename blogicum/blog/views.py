@@ -47,10 +47,10 @@ class BaseCommentMixin:
 
 class AuthorCheckCommentMixin(BaseCommentMixin):
     def get_object(self, queryset=None):
-        comment = get_object_or_404(Comment, pk=self.kwargs['comment'])
-        post = get_object_or_404(Post, pk=self.kwargs['post'])
+        comment = get_object_or_404(Comment, pk=self.kwargs["comment"])
+        post = get_object_or_404(Post, pk=self.kwargs["post"])
         if comment.author != self.request.user or comment.post != post:
-            raise Http404("Действие запрещено")
+            raise Http404("Запрещено")
         return comment
 
 
@@ -78,15 +78,7 @@ class CommentCreateView(LoginRequiredMixin, BaseCommentMixin, CreateView):
 class CommentEditView(LoginRequiredMixin, AuthorCheckCommentMixin, UpdateView):
     model = Comment
     form_class = CommentCreateForm
-    template_name = "blog/comment_edit.html"
-
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['comment'] = self.get_object()
-        return context
+    template_name = "blog/comment.html"
 
     def get_success_url(self):
         return reverse_lazy(
@@ -99,7 +91,7 @@ class CommentEditView(LoginRequiredMixin, AuthorCheckCommentMixin, UpdateView):
 
 class CommentRemoveView(LoginRequiredMixin, AuthorCheckCommentMixin, DeleteView):
     model = Comment
-    template_name = 'blog/comment_edit.html'
+    template_name = "blog/comment.html"
 
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -107,10 +99,17 @@ class CommentRemoveView(LoginRequiredMixin, AuthorCheckCommentMixin, DeleteView)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['comment'] = self.get_object()
+        # Удаляем ключ 'form', если он присутствует
+        context.pop('form', None)
         return context
 
     def get_success_url(self):
-        return reverse_lazy('blog:post_detail', kwargs={'post': self.object.post.id})
+        return reverse_lazy(
+            "blog:post_detail",
+            kwargs={
+                "post": self.object.post.id,
+            },
+        )
 
 
 class UserProfileView(DetailView):
@@ -149,6 +148,7 @@ class UserEditView(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         return self.request.user
+
 
     def get_success_url(self):
         return reverse_lazy(

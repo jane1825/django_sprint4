@@ -76,40 +76,14 @@ class CommentCreateView(LoginRequiredMixin, BaseCommentMixin, CreateView):
 
 
 class CommentEditView(LoginRequiredMixin, AuthorCheckCommentMixin, UpdateView):
-    model = Comment
-    form_class = CommentCreateForm
-    template_name = "blog/comment.html"
+    pass
 
-    def get_success_url(self):
-        return reverse_lazy(
-            "blog:post_detail",
-            kwargs={
-                "post": self.object.post.id,
-            },
-        )
 
 
 class CommentRemoveView(LoginRequiredMixin, AuthorCheckCommentMixin, DeleteView):
-    model = Comment
-    template_name = "blog/comment.html"
+    pass
 
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['comment'] = self.get_object()
-        # Удаляем ключ 'form', если он присутствует
-        context.pop('form', None)
-        return context
-
-    def get_success_url(self):
-        return reverse_lazy(
-            "blog:post_detail",
-            kwargs={
-                "post": self.object.post.id,
-            },
-        )
 
 
 class UserProfileView(DetailView):

@@ -48,7 +48,8 @@ class BaseCommentMixin:
 class AuthorCheckCommentMixin(BaseCommentMixin):
     def get_object(self, queryset=None):
         comment = get_object_or_404(Comment, pk=self.kwargs["comment"])
-        if comment.author != self.request.user:
+        post = get_object_or_404(Post, pk=self.kwargs["post"])
+        if comment.author != self.request.user or comment.post != post:
             raise Http404("Запрещено")
         return comment
 
@@ -75,30 +76,14 @@ class CommentCreateView(LoginRequiredMixin, BaseCommentMixin, CreateView):
 
 
 class CommentEditView(LoginRequiredMixin, AuthorCheckCommentMixin, UpdateView):
-    model = Comment
-    form_class = CommentCreateForm
-    template_name = "blog/comment_edit.html"
+    pass
 
-    def get_success_url(self):
-        return reverse_lazy(
-            "blog:post_detail",
-            kwargs={
-                "post": self.object.post.id,
-            },
-        )
 
 
 class CommentRemoveView(LoginRequiredMixin, AuthorCheckCommentMixin, DeleteView):
-    model = Comment
-    template_name = "blog/comment_confirm_delete.html"
+    pass
 
-    def get_success_url(self):
-        return reverse_lazy(
-            "blog:post_detail",
-            kwargs={
-                "post": self.object.post.id,
-            },
-        )
+
 
 
 class UserProfileView(DetailView):
@@ -238,7 +223,7 @@ class PostDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["comments"] = self.object.comment_set.all()
+        context["comments"] = self.object.comment_set.all().order_by("created_at")
         if self.request.user.is_authenticated:
             context["form"] = CommentCreateForm()
         return context

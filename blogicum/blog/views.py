@@ -39,15 +39,16 @@ class BaseCommentMixin:
     def get_success_url(self):
         return reverse_lazy(
             "blog:post_detail",
-            kwargs={"post": self.get_post().id},
+            kwargs={
+                "post": self.get_post().id,
+            },
         )
 
 
 class AuthorCheckCommentMixin(BaseCommentMixin):
     def get_object(self, queryset=None):
         comment = get_object_or_404(Comment, pk=self.kwargs["comment"])
-        post = get_object_or_404(Post, pk=self.kwargs["post"])
-        if comment.author != self.request.user or comment.post != post:
+        if comment.author != self.request.user:
             raise Http404("Запрещено")
         return comment
 
@@ -73,20 +74,31 @@ class CommentCreateView(LoginRequiredMixin, BaseCommentMixin, CreateView):
         return super().form_valid(form)
 
 
-class CommentRemoveView(
-    LoginRequiredMixin,
-    AuthorCheckCommentMixin,
-    UpdateView
-):
-    pass
+class CommentEditView(LoginRequiredMixin, AuthorCheckCommentMixin, UpdateView):
+    model = Comment
+    form_class = CommentCreateForm
+    template_name = "blog/comment_edit.html"
+
+    def get_success_url(self):
+        return reverse_lazy(
+            "blog:post_detail",
+            kwargs={
+                "post": self.object.post.id,
+            },
+        )
 
 
-class CommentRemoveView(
-    LoginRequiredMixin,
-    AuthorCheckCommentMixin,
-    DeleteView
-):
-    pass
+class CommentRemoveView(LoginRequiredMixin, AuthorCheckCommentMixin, DeleteView):
+    model = Comment
+    template_name = "blog/comment_confirm_delete.html"
+
+    def get_success_url(self):
+        return reverse_lazy(
+            "blog:post_detail",
+            kwargs={
+                "post": self.object.post.id,
+            },
+        )
 
 
 class UserProfileView(DetailView):
@@ -126,10 +138,13 @@ class UserEditView(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         return self.request.user
 
+
     def get_success_url(self):
         return reverse_lazy(
             "blog:profile",
-            kwargs={"username": self.object.username},
+            kwargs={
+                "username": self.object.username,
+            },
         )
 
 
@@ -145,7 +160,9 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse(
             "blog:profile",
-            kwargs={"username": self.request.user.username},
+            kwargs={
+                "username": self.request.user.username,
+            },
         )
 
 
@@ -174,7 +191,9 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy(
             "blog:profile",
-            kwargs={"username": self.request.user.username},
+            kwargs={
+                "username": self.request.user.username,
+            },
         )
 
 
@@ -196,7 +215,9 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
     def get_success_url(self):
         return reverse(
             "blog:profile",
-            kwargs={"username": self.request.user.username},
+            kwargs={
+                "username": self.request.user.username,
+            },
         )
 
 
@@ -209,10 +230,7 @@ class PostDetailView(DetailView):
         post = get_object_or_404(Post, pk=self.kwargs["post"])
         now = timezone.now()
         if self.request.user != post.author:
-            if (
-                    post.pub_date > now
-                    or not post.is_published
-            ):
+            if post.pub_date > now or not post.is_published:
                 raise Http404("Публикация не найдена или недоступна.")
             if not post.category.is_published:
                 raise Http404("Категория недоступна.")
@@ -220,15 +238,9 @@ class PostDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        context["comments"] = (
-            self.object.comment_set.all()
-            .order_by("created_at")
-        )
-
+        context["comments"] = self.object.comment_set.all()
         if self.request.user.is_authenticated:
             context["form"] = CommentCreateForm()
-
         return context
 
 

@@ -210,9 +210,9 @@ class PostDetailView(DetailView):
         now = timezone.now()
         if self.request.user != post.author:
             if (
-    post.pub_date > now
-    or not post.is_published
-):
+                    post.pub_date > now
+                    or not post.is_published
+            ):
                 raise Http404("Публикация не найдена или недоступна.")
             if not post.category.is_published:
                 raise Http404("Категория недоступна.")
@@ -220,9 +220,15 @@ class PostDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["comments"] = self.object.comment_set.all().order_by("created_at")
+
+        context["comments"] = (
+            self.object.comment_set.all()
+            .order_by("created_at")
+        )
+
         if self.request.user.is_authenticated:
             context["form"] = CommentCreateForm()
+
         return context
 
 

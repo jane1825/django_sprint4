@@ -73,11 +73,19 @@ class CommentCreateView(LoginRequiredMixin, BaseCommentMixin, CreateView):
         return super().form_valid(form)
 
 
-class CommentEditView(LoginRequiredMixin, AuthorCheckCommentMixin, UpdateView):
+class CommentRemoveView(
+    LoginRequiredMixin,
+    AuthorCheckCommentMixin,
+    UpdateView
+):
     pass
 
 
-class CommentRemoveView(LoginRequiredMixin, AuthorCheckCommentMixin, DeleteView):
+class CommentRemoveView(
+    LoginRequiredMixin,
+    AuthorCheckCommentMixin,
+    DeleteView
+):
     pass
 
 
@@ -201,7 +209,10 @@ class PostDetailView(DetailView):
         post = get_object_or_404(Post, pk=self.kwargs["post"])
         now = timezone.now()
         if self.request.user != post.author:
-            if post.pub_date > now or not post.is_published:
+            if (
+    post.pub_date > now
+    or not post.is_published
+):
                 raise Http404("Публикация не найдена или недоступна.")
             if not post.category.is_published:
                 raise Http404("Категория недоступна.")

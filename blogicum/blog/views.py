@@ -39,9 +39,7 @@ class BaseCommentMixin:
     def get_success_url(self):
         return reverse_lazy(
             "blog:post_detail",
-            kwargs={
-                "post": self.get_post().id,
-            },
+            kwargs={"post": self.get_post().id},
         )
 
 
@@ -79,11 +77,8 @@ class CommentEditView(LoginRequiredMixin, AuthorCheckCommentMixin, UpdateView):
     pass
 
 
-
 class CommentRemoveView(LoginRequiredMixin, AuthorCheckCommentMixin, DeleteView):
     pass
-
-
 
 
 class UserProfileView(DetailView):
@@ -123,13 +118,10 @@ class UserEditView(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         return self.request.user
 
-
     def get_success_url(self):
         return reverse_lazy(
             "blog:profile",
-            kwargs={
-                "username": self.object.username,
-            },
+            kwargs={"username": self.object.username},
         )
 
 
@@ -145,9 +137,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse(
             "blog:profile",
-            kwargs={
-                "username": self.request.user.username,
-            },
+            kwargs={"username": self.request.user.username},
         )
 
 
@@ -176,9 +166,7 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy(
             "blog:profile",
-            kwargs={
-                "username": self.request.user.username,
-            },
+            kwargs={"username": self.request.user.username},
         )
 
 
@@ -200,9 +188,7 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
     def get_success_url(self):
         return reverse(
             "blog:profile",
-            kwargs={
-                "username": self.request.user.username,
-            },
+            kwargs={"username": self.request.user.username},
         )
 
 

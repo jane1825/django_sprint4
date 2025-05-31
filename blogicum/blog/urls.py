@@ -58,4 +58,3 @@ urlpatterns = [
         name='profile'
     ),
 ]
-

@@ -82,6 +82,7 @@ class CommentEditView(
 ):
     pass
 
+
 class CommentRemoveView(
     LoginRequiredMixin,
     AuthorCheckCommentMixin,
@@ -233,7 +234,6 @@ class PostDetailView(DetailView):
         if self.request.user.is_authenticated:
             context["form"] = CommentCreateForm()
         return context
-
 
 
 class PostsListView(PostQuerySetMixin, ListView):

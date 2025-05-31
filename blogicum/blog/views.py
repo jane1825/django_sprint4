@@ -75,15 +75,19 @@ class CommentCreateView(LoginRequiredMixin, BaseCommentMixin, CreateView):
         return super().form_valid(form)
 
 
-class CommentEditView(LoginRequiredMixin, AuthorCheckCommentMixin, UpdateView):
+class CommentEditView(
+    LoginRequiredMixin,
+    AuthorCheckCommentMixin,
+    UpdateView,
+):
     pass
 
-
-
-class CommentRemoveView(LoginRequiredMixin, AuthorCheckCommentMixin, DeleteView):
+class CommentRemoveView(
+    LoginRequiredMixin,
+    AuthorCheckCommentMixin,
+    DeleteView,
+):
     pass
-
-
 
 
 class UserProfileView(DetailView):
@@ -122,7 +126,6 @@ class UserEditView(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         return self.request.user
-
 
     def get_success_url(self):
         return reverse_lazy(
@@ -223,10 +226,14 @@ class PostDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["comments"] = self.object.comment_set.all().order_by("created_at")
+        context["comments"] = (
+            self.object.comment_set.all()
+            .order_by("created_at")
+        )
         if self.request.user.is_authenticated:
             context["form"] = CommentCreateForm()
         return context
+
 
 
 class PostsListView(PostQuerySetMixin, ListView):

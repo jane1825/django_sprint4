@@ -10,7 +10,7 @@ from django.views.generic import (
 )
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.core.paginator import Paginator
 from django.db.models import Count
 
@@ -37,7 +37,7 @@ class BaseCommentMixin:
         return get_object_or_404(Post, id=self.kwargs["post"])
 
     def get_success_url(self):
-        return reverse_lazy(
+        return reverse(
             "blog:post_detail",
             kwargs={
                 "post": self.get_post().id,
@@ -129,7 +129,7 @@ class UserEditView(LoginRequiredMixin, UpdateView):
         return self.request.user
 
     def get_success_url(self):
-        return reverse_lazy(
+        return reverse(
             "blog:profile",
             kwargs={
                 "username": self.object.username,
@@ -178,7 +178,7 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy(
+        return reverse(
             "blog:profile",
             kwargs={
                 "username": self.request.user.username,
